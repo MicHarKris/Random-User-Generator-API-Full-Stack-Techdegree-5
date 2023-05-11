@@ -17,7 +17,6 @@ function fetchData(url) {
         .then(response => response.json())
         .then(data => {
             employeeArray = data.results;
-            console.log(employeeArray);
         })
         .catch(error => console.log('Looks like there was a problem', error));
 }
@@ -63,7 +62,6 @@ function searchFor(event){
     }
 
     for (let i = 0; i < searchArray.length; i++) {
-        console.log(searchArray);
         createGallery(searchArray[i], i);
     }
 }
@@ -72,13 +70,14 @@ function searchFor(event){
 
 // Removes the current gallery
 function removeGallery(){
-    const cards = document.querySelectorAll('.card');
+    const cards = document.getElementsByClassName('card');
+    const cardsArray = Array.from(cards);
 
-    cards.forEach((card) => {
+    cardsArray.forEach((card) => {
         card.remove();
+        searchArray = [];
     });
 }
-
 
 // Creates a gallery of random employeess on the page.
 function fetchGallery() {
@@ -166,7 +165,7 @@ function createModal(id){
                 <p class="modal-text cap">${employeeArray[id].location.city}</p>
                 <hr>
                 <p class="modal-text">${employeeArray[id].cell}</p>
-                <p class="modal-text">${employeeArray[id].location.street.number} ${employeeArray[id].location.street.name}, ${employeeArray[id].location.city}, ${employeeArray[id].location.country} ${employeeArray[id].location.postcode}</p>
+                <p class="modal-text">${employeeArray[id].location.street.number} ${employeeArray[id].location.street.name}, ${employeeArray[id].location.city}, ${employeeArray[id].location.state} ${employeeArray[id].location.postcode}</p>
                 <p class="modal-text">Birthday: ${birthday[2]}/${birthday[3]}/${birthday[1]}</p>
             </div>
         </div>
