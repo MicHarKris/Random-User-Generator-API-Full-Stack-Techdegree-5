@@ -1,7 +1,7 @@
 const galleryContainer = document.getElementById('gallery');
 const searchContainer = document.querySelector('.search-container');
 const modalContainer = document.body;
-const randomEmployeeUrl = 'https://randomuser.me/api/';
+const randomEmployeeUrl = 'https://randomuser.me/api/?results=12&nat=us';
 
 // Two arrays for storing the fetched data and sorted data for later use.
 let employeeArray = [];
@@ -16,7 +16,8 @@ function fetchData(url) {
         // .then(checkStatus)
         .then(response => response.json())
         .then(data => {
-            employeeArray = employeeArray.concat(data.results[0]);
+            employeeArray = data.results;
+            console.log(employeeArray);
         })
         .catch(error => console.log('Looks like there was a problem', error));
 }
@@ -30,9 +31,54 @@ function createSearch(){
     </form>
     `;
     searchContainer.insertAdjacentHTML('beforeend', searchHTML);
+
+    const searchButton = document.getElementById('search-submit');
+    searchButton.addEventListener('click', searchFor);
+}
+
+function searchFor(event){
+    event.preventDefault();
+
+    removeGallery();
+
+    const searchInput = document.querySelector('#search-input');
+    const searchString = searchInput.value;
+    
+    if (searchString == '') {
+        for (let i = 0; i < employeeArray.length; i++) {
+            createGallery(employeeArray[i], i);
+        }
+    }
+
+    for (let i = 0; i < employeeArray.length; i++) {
+        const employee = employeeArray[i];
+    
+        // Convert the object to a string to perform the search
+        const employeeString = JSON.stringify(employee);
+    
+        // Check if the search string is present in the object string
+        if (employeeString.includes(searchString) && searchString != '') {
+            searchArray.push(employeeArray[i]);
+        }
+    }
+
+    for (let i = 0; i < searchArray.length; i++) {
+        console.log(searchArray);
+        createGallery(searchArray[i], i);
+    }
 }
 
 // Gallery Functions
+
+// Removes the current gallery
+function removeGallery(){
+    const cards = document.querySelectorAll('.card');
+
+    cards.forEach((card) => {
+        card.remove();
+    });
+}
+
 
 // Creates a gallery of random employeess on the page.
 function fetchGallery() {
@@ -45,15 +91,15 @@ function fetchGallery() {
     galleryContainer.insertAdjacentHTML('beforeend', loadingHTML);
     
     // Calls the fetchData function, with a Promise.all() function, when all fetch'es concludes
-    const fetchPromises = [];
-    for (let i = 0; i < 12; i++) {
-        fetchPromises.push(fetchData(randomEmployeeUrl));
-    }
+    // const fetchPromises = [];
+    // for (let i = 0; i < 12; i++) {
+    //     fetchPromises.push(fetchData(randomEmployeeUrl));
+    // }
   
     // When all the fetch promises have resolved, the 'Loading Employee List...' message is removed, 
     // and the createGallery() function is called equal to the amount of Employees successfully fetch'ed, 
     // and if the full twelve Employees are not fetch'ed, and error message is displayed after the gallery.
-    Promise.all(fetchPromises)
+    fetchData(randomEmployeeUrl)
         .then(() => {
             console.log(employeeArray.length);
             const loadingText = document.getElementById(`loading`);
