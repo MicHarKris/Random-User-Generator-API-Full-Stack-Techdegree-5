@@ -1,32 +1,27 @@
 const galleryContainer = document.getElementById('gallery');
 const searchContainer = document.querySelector('.search-container');
 const modalContainer = document.body;
-const randomUserUrl = 'https://randomuser.me/api/';
-let twelveUsers = [];
-let searchUsers = [];
+const randomEmployeeUrl = 'https://randomuser.me/api/';
+
+// Two arrays for storing the fetched data and sorted data for later use.
+let employeeArray = [];
+let searchArray = [];
 
 // Fetch Functions
+
+// Fetch'es data from the API, converts the string to JSON format, and assigns them to the employeeArray, 
+// for later use in functions that aren't called at this time.
 function fetchData(url) {    
     return fetch(url)
-        .then(checkStatus)
+        // .then(checkStatus)
         .then(response => response.json())
         .then(data => {
-            twelveUsers = twelveUsers.concat(data.results[0]);
-            return data.results[0];
+            employeeArray = employeeArray.concat(data.results[0]);
         })
         .catch(error => console.log('Looks like there was a problem', error));
 }
 
-function checkStatus(response) {
-    if (response.ok) {
-        return Promise.resolve(response);
-    } else {
-        return Promise.reject(new Error(response.statusText));
-    }
-}
-
 // Search Functions
-
 function createSearch(){
     const searchHTML = `
     <form action="#" method="get">
@@ -39,32 +34,48 @@ function createSearch(){
 
 // Gallery Functions
 
+// Creates a gallery of random employeess on the page.
 function fetchGallery() {
-    const fetchPromises = [];
-
+    // Creates a 'Loading Employee List...' message on the page.
     const loadingHTML = `
     <div id="loading" class="header-inner-container">
-        <h3>Loading User List...</h3>
+        <h3>Loading Employee List...</h3>
     </div>
     `    
     galleryContainer.insertAdjacentHTML('beforeend', loadingHTML);
     
+    // Calls the fetchData function, with a Promise.all() function, when all fetch'es concludes
+    const fetchPromises = [];
     for (let i = 0; i < 12; i++) {
-        fetchPromises.push(fetchData(randomUserUrl));
+        fetchPromises.push(fetchData(randomEmployeeUrl));
     }
   
+    // When all the fetch promises have resolved, the 'Loading Employee List...' message is removed, 
+    // and the createGallery() function is called equal to the amount of Employees successfully fetch'ed, 
+    // and if the full twelve Employees are not fetch'ed, and error message is displayed after the gallery.
     Promise.all(fetchPromises)
         .then(() => {
+            console.log(employeeArray.length);
             const loadingText = document.getElementById(`loading`);
             loadingText.remove();
-            
-            for (let i = 0; i < 12; i++) {
-                createGallery(twelveUsers[i], i);
+
+            for (let i = 0; i < employeeArray.length; i++) {
+                createGallery(employeeArray[i], i);
+            }
+
+            if (employeeArray.length < 12){
+                const loadErrorHTML = `
+                <div id="loading" class="header-inner-container">
+                    <h3>Could not load the full list of employees - please try again later.</h3>
+                </div>
+                `    
+                galleryContainer.insertAdjacentHTML('beforeend', loadErrorHTML);
             }
         });
   }
 
 function createGallery(data, id){
+    // Gallery item HTML format is built, then added to the DOM inside the galleryContainer.
     const galleryHTML = `
     <div id="${id}" class="card">
         <div class="card-img-container">
@@ -79,30 +90,37 @@ function createGallery(data, id){
     `;
     galleryContainer.insertAdjacentHTML('beforeend', galleryHTML);
 
+    // Reference is made to the relevant gallery element in the DOM.
     const galleryItem = galleryContainer.lastElementChild;
 
+    // On click, the gallery item calls the createModal function, with a reference to the current targets ID number.
     galleryItem.addEventListener('click', function(event) {
         createModal(event.currentTarget.id);
     });
 } 
 
+// Modal Functions
+
+// Creates a modal card, with an ID based on the employee selection.
 function createModal(id){
-    const birthdayData = twelveUsers[id].dob.date;
+    // Birthday date is formatted through a RegEx search grouping.
+    const birthdayData = employeeArray[id].dob.date;
     const birthdayRegex = /^(\d{4})-(\d{2})-(\d{2})T.*/;
     const birthday = birthdayRegex.exec(birthdayData);
 
+    // Modal Card HTML format is built, then added to the DOM inside the modalContainer.
     const modalHTML = `
         <div class="modal-container" id="modal-container-${id}">
         <div class="modal">
             <button type="button" id="modal-close-btn-${id}" class="modal-close-btn"><strong>X</strong></button>
             <div class="modal-info-container">
-                <img class="modal-img" src="${twelveUsers[id].picture.large}" alt="profile picture">
-                <h3 id="name" class="modal-name cap">${twelveUsers[id].name.first} ${twelveUsers[id].name.last}</h3>
-                <p class="modal-text">${twelveUsers[id].email}</p>
-                <p class="modal-text cap">${twelveUsers[id].location.city}</p>
+                <img class="modal-img" src="${employeeArray[id].picture.large}" alt="profile picture">
+                <h3 id="name" class="modal-name cap">${employeeArray[id].name.first} ${employeeArray[id].name.last}</h3>
+                <p class="modal-text">${employeeArray[id].email}</p>
+                <p class="modal-text cap">${employeeArray[id].location.city}</p>
                 <hr>
-                <p class="modal-text">${twelveUsers[id].phone}</p>
-                <p class="modal-text">${twelveUsers[id].location.street.number} ${twelveUsers[id].location.street.name}, ${twelveUsers[id].location.city}, ${twelveUsers[id].location.country} ${twelveUsers[id].location.postcode}</p>
+                <p class="modal-text">${employeeArray[id].cell}</p>
+                <p class="modal-text">${employeeArray[id].location.street.number} ${employeeArray[id].location.street.name}, ${employeeArray[id].location.city}, ${employeeArray[id].location.country} ${employeeArray[id].location.postcode}</p>
                 <p class="modal-text">Birthday: ${birthday[2]}/${birthday[3]}/${birthday[1]}</p>
             </div>
         </div>
@@ -115,29 +133,34 @@ function createModal(id){
     `;
     modalContainer.insertAdjacentHTML('beforeend', modalHTML);
 
- 
-        const modalCard = document.getElementById(`modal-container-${id}`);
+    // References are made to all the relevant Modal elements in the DOM.
+    const modalCard = document.getElementById(`modal-container-${id}`);
+    const closeButton = document.getElementById(`modal-close-btn-${id}`);
+    const prevButton = document.getElementById(`modal-prev-${id}`);
+    const nextButton = document.getElementById(`modal-next-${id}`);
 
-        const closeButton = document.getElementById(`modal-close-btn-${id}`);
-        const prevButton = document.getElementById(`modal-prev-${id}`);
-        const nextButton = document.getElementById(`modal-next-${id}`);
-
-
+    //  On click, removes the modal from the DOM
     closeButton.addEventListener('click', () => {
         modalCard.remove();
     });
 
+    // On click, creates a new modal, with an ID one lower than the current modal, and finds the same Index in the employeeArray to reference.
+    // If current ID is the first index, instead the index at employeeArray.length-1 (length does not include 0) is referenced.
+    // Then the previous modal is removed from the DOM.
     prevButton.addEventListener('click', () => {
         if (id == 0) {
-            createModal(11);
+            createModal(employeeArray.length-1);
         } else {
             createModal(parseInt(id)-1);
         }
         modalCard.remove();
     });
 
+    // On click, creates a new modal, with an ID one higher than the current modal, and finds the same Index in the employeeArray to reference.
+    // If current ID is the last index, instead the index at employeeArray.length+1 (length does not include 0) is referenced.
+    // Then the previous modal is removed from the DOM.
     nextButton.addEventListener('click', () => {
-        if (id == 11) {
+        if (id == employeeArray.length-1) {
             createModal(0);
         } else {
             createModal(parseInt(id)+1);
@@ -146,6 +169,6 @@ function createModal(id){
     });
 }
 
-// Initialization
+// Initialization of the Gallery and the Search Field
 fetchGallery();
 createSearch();
