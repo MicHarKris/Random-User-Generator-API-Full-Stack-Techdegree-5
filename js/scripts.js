@@ -3,9 +3,10 @@ const searchContainer = document.querySelector('.search-container');
 const modalContainer = document.body;
 const randomUserUrl = 'https://randomuser.me/api/';
 let twelveUsers = [];
+let searchUsers = [];
 
 // Fetch Functions
-function fetchData(url) {
+function fetchData(url) {    
     return fetch(url)
         .then(checkStatus)
         .then(response => response.json())
@@ -38,12 +39,30 @@ function createSearch(){
 
 // Gallery Functions
 
-function fetchGallery(){
-    for (let i = 0; i < 12; i++){
-        fetchData(randomUserUrl)
-            .then(data => createGallery(data, i)
-    )}
-}
+function fetchGallery() {
+    const fetchPromises = [];
+
+    const loadingHTML = `
+    <div id="loading" class="header-inner-container">
+        <h3>Loading User List...</h3>
+    </div>
+    `    
+    galleryContainer.insertAdjacentHTML('beforeend', loadingHTML);
+    
+    for (let i = 0; i < 12; i++) {
+        fetchPromises.push(fetchData(randomUserUrl));
+    }
+  
+    Promise.all(fetchPromises)
+        .then(() => {
+            const loadingText = document.getElementById(`loading`);
+            loadingText.remove();
+            
+            for (let i = 0; i < 12; i++) {
+                createGallery(twelveUsers[i], i);
+            }
+        });
+  }
 
 function createGallery(data, id){
     const galleryHTML = `
