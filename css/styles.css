@@ -16,7 +16,7 @@ html, body {
 body {
     font-family: "Nunito", sans-serif;
     text-align: center;
-    background: rgba(235, 235, 235, 0.9);
+    background: rgba(235, 235, 235);
 }
 
 header {
@@ -85,17 +85,20 @@ header h1 {
     max-width: 360px;
     margin: 10px 10px 20px;
     padding: 10px;
-    background: rgba(245, 245, 245, 0.9);
+    background: rgba(245, 245, 245);
     border-radius: 0.25em;
-    border: 1px solid rgba(50, 50, 50, 0.3);
+    border: 1px solid rgba(50, 50, 50, 0.5);
     transition: .4s ease-out;
     overflow: hidden;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .card-img {
     width: 95px;
     margin: 10px 15px auto 10px;
     border-radius: 50%;
+    border: 1px solid rgba(50, 50, 50, 0.5);
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .card-info-container {
@@ -129,6 +132,7 @@ header h1 {
     bottom: 0;
     left: 0;
     background: rgba(0, 0, 0, 0.7);
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .modal {
@@ -159,6 +163,8 @@ header h1 {
     width: 150px;
     margin-top: 35px;
     border-radius: 50%;
+    border: 2px solid rgba(50, 50, 50, 0.5);
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .modal-name {
@@ -188,8 +194,8 @@ header h1 {
     background: rgba(255, 255, 255, 1);
     border-radius: 0.25em;
     border: 1px solid rgba(100, 100, 100, 0.3);
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
-
 
 .modal-btn-container .btn {
     display: inline-block;
@@ -201,7 +207,41 @@ header h1 {
     background: rgba(0, 0, 0, 0.8);
     border-radius: 0.35em;
     transition: .4s ease-out;
-  }
+}
+
+.modal-animation {
+    animation-name: dropDown;
+    animation-duration: 0.5s;
+    animation-fill-mode: forwards;
+}
+
+.button-animation {
+    animation-name: dropUp;
+    animation-duration: 0.5s;
+    animation-fill-mode: forwards;
+}
+  
+@keyframes dropDown {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes dropUp {
+    from {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
   
 
 /* ===================================== 
